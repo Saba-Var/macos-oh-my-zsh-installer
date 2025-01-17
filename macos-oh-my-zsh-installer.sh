@@ -143,17 +143,25 @@ source \$ZSH/oh-my-zsh.sh
 export PATH=\$HOME/bin:/usr/local/bin:\$PATH
 EOL
 
-# Reinstall plugins if they exist
-if [ -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
-    print_message "Reinstalling zsh-autosuggestions plugin..."
-    rm -rf "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-fi
+# Set correct directory for plugin installation
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
-if [ -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
-    print_message "Reinstalling zsh-syntax-highlighting plugin..."
-    rm -rf "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-fi
+# Check and install plugins if they are not already installed
+install_plugin() {
+    plugin_name=$1
+    plugin_url=$2
+    plugin_dir="$ZSH_CUSTOM/plugins/$plugin_name"
+
+    if [ ! -d "$plugin_dir" ]; then
+        print_message "Installing $plugin_name plugin..."
+        git clone "$plugin_url" "$plugin_dir"
+    else
+        print_message "$plugin_name plugin already installed."
+    fi
+}
+
+# Install necessary plugins
+install_plugin "zsh-autosuggestions" "https://github.com/zsh-users/zsh-autosuggestions"
+install_plugin "zsh-syntax-highlighting" "https://github.com/zsh-users/zsh-syntax-highlighting.git"
 
 print_message "Installation complete! Restarting your terminal..."
