@@ -15,15 +15,8 @@ print_error() {
     echo -e "\033[1;31m$1\033[0m"
 }
 
-# Available themes array
-declare -A themes
-themes=(
-    ["1"]="robbyrussell"
-    ["2"]="agnoster"
-    ["3"]="powerlevel10k/powerlevel10k"
-    ["4"]="spaceship"
-    ["5"]="pure"
-)
+# Available themes array (using indexed array)
+themes=("robbyrussell" "agnoster" "powerlevel10k/powerlevel10k" "spaceship")
 
 # Function to display theme selection menu
 select_theme() {
@@ -32,24 +25,23 @@ select_theme() {
     echo "2) agnoster (Powerline-style theme)"
     echo "3) powerlevel10k (Feature-rich customizable theme)"
     echo "4) spaceship (Minimalistic and powerful theme)"
-    echo "5) pure (Minimal and fast theme)"
-    echo "6) Custom theme (Enter GitHub URL)"
+    echo "5) Custom theme (Enter GitHub URL)"
 
     while true; do
-        read -p "Select theme number (1-6): " theme_choice
+        read -p "Select theme number (1-5): " theme_choice
         case $theme_choice in
-            [1-5])
-                selected_theme=${themes[$theme_choice]}
+            [1-4])
+                selected_theme=${themes[$theme_choice-1]}
                 break
                 ;;
-            6)
+            5)
                 read -p "Enter theme GitHub URL (format: user/repo): " custom_theme_url
                 selected_theme=$(basename "$custom_theme_url")
                 custom_theme_url="https://github.com/$custom_theme_url"
                 break
                 ;;
             *)
-                print_error "Invalid selection. Please choose 1-6."
+                print_error "Invalid selection. Please choose 1-5."
                 ;;
         esac
     done
@@ -82,28 +74,43 @@ fi
 # Theme selection
 select_theme
 
+# Function to remove existing theme if exists
+remove_existing_theme() {
+    local theme_dir="$1"
+    if [ -d "$theme_dir" ]; then
+        print_message "Removing existing theme directory: $theme_dir"
+        rm -rf "$theme_dir"
+    fi
+}
+
 # Install selected theme
 print_message "Installing selected theme: $selected_theme"
 case $selected_theme in
     "powerlevel10k/powerlevel10k")
-        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+        theme_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+        remove_existing_theme "$theme_dir"
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$theme_dir"
         # Install recommended font for Powerlevel10k
         print_message "Installing MesloLGS NF font..."
-        brew tap homebrew/cask-fonts
-        brew install --cask font-meslo-lg-nerd-font
+        brew install --cask font-meslo-nerd-font
         ;;
     "spaceship")
-        git clone https://github.com/spaceship-prompt/spaceship-prompt.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt" --depth=1
+        theme_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt"
+        remove_existing_theme "$theme_dir"
+        git clone https://github.com/spaceship-prompt/spaceship-prompt.git "$theme_dir" --depth=1
         ln -s "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship-prompt/spaceship.zsh-theme" "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/spaceship.zsh-theme"
         ;;
-    "pure")
-        brew install pure
-        mkdir -p "$HOME/.zsh"
-        git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
-        ;;
     *)
-        if [ "$theme_choice" = "6" ]; then
-            git clone "$custom_theme_url" "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/$selected_theme"
+        if [ "$theme_choice" = "5" ]; then
+            theme_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/$selected_theme"
+            remove_existing_theme "$theme_dir"
+            # Attempt to clone the custom theme
+            git clone "$custom_theme_url" "$theme_dir"
+            # Check if the clone was successful
+            if [ $? -ne 0 ]; then
+                print_error "Failed to clone the repository. Please check the GitHub URL."
+                exit 1
+            fi
         fi
         ;;
 esac
@@ -136,20 +143,17 @@ source \$ZSH/oh-my-zsh.sh
 export PATH=\$HOME/bin:/usr/local/bin:\$PATH
 EOL
 
-# Configure pure theme if selected
-if [ "$selected_theme" = "pure" ]; then
-    cat >> "$HOME/.zshrc" << EOL
-
-# Pure theme setup
-fpath+=($HOME/.zsh/pure)
-autoload -U promptinit; promptinit
-prompt pure
-EOL
+# Reinstall plugins if they exist
+if [ -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
+    print_message "Reinstalling zsh-autosuggestions plugin..."
+    rm -rf "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 fi
 
-# Install additional plugins
-print_message "Installing additional plugins..."
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+if [ -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
+    print_message "Reinstalling zsh-syntax-highlighting plugin..."
+    rm -rf "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+fi
 
-print_message "Installation complete! Please restart your terminal."
+print_message "Installation complete! Restarting your terminal..."
