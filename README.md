@@ -39,7 +39,7 @@ Ensure you meet the following requirements before running the script:
 1. Download the script:
 
    ```bash
-   curl -O https://github.com/Saba-Var/macos-oh-my-zsh-installer
+   curl -O https://github.com/Saba-Var/macos-oh-my-zsh-installer/blob/main/macos-oh-my-zsh-installer.sh
    ```
 
 2. Make the script executable:
