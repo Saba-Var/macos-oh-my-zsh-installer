@@ -15,7 +15,6 @@ This script automates the installation and configuration of **Oh My Zsh** on mac
   - `agnoster`
   - `powerlevel10k` (includes font installation)
   - `spaceship`
-  - `pure`
   - Custom theme (from a GitHub repository)
 - Configures `.zshrc` with:
   - The selected theme
@@ -67,8 +66,7 @@ When prompted, select one of the following themes:
 2. **agnoster**: Powerline-style theme.
 3. **powerlevel10k**: Feature-rich customizable theme. The script installs the recommended font (MesloLGS NF).
 4. **spaceship**: Minimalistic and powerful theme.
-5. **pure**: Minimal and fast theme.
-6. **Custom theme**: Specify a GitHub repository URL in the format `user/repo`.
+5. **Custom theme**: Specify a GitHub repository URL in the format `user/repo`.
 
 ---
 
@@ -89,9 +87,10 @@ The script installs the following plugins to enhance your Zsh experience:
 
 ## Font Installation
 
-If you select the **Powerlevel10k** theme, the **MesloLGS NF** font will be installed. 
+If you select the **Powerlevel10k** theme, the **MesloLGS NF** font will be installed.
 
 ### Configuring the Font:
+
 1. Open your terminal preferences.
 2. Set the font to **MesloLGS NF** in the terminal profile settings.
 
@@ -100,10 +99,12 @@ If you select the **Powerlevel10k** theme, the **MesloLGS NF** font will be inst
 ## Troubleshooting
 
 ### Common Issues:
+
 - **Homebrew not installed**: Ensure you have admin rights to install Homebrew.
 - **Zsh not set as default shell**: Restart your terminal after the script runs.
 
 ### Restart Terminal:
+
 After installation, restart your terminal to apply all changes.
 
 ---
