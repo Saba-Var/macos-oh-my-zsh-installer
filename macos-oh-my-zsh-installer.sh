@@ -153,16 +153,3 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-m
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 print_message "Installation complete! Please restart your terminal."
-
-# Additional instructions based on theme
-case $selected_theme in
-    "powerlevel10k/powerlevel10k")
-        print_message "After restart, run 'p10k configure' to set up the Powerlevel10k theme."
-        ;;
-    "agnoster")
-        print_message "For best results with agnoster, install a powerline-compatible font."
-        ;;
-    "spaceship")
-        print_message "Spaceship theme is ready to use. Check documentation for customization options."
-        ;;
-esac
